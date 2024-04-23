@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  devproxy:
+    build:
+      context: ./docker
+      dockerfile: ./devproxy.Dockerfile
+    ports:
+      - 7777:7777
+    environment:
+      - NGINX_PORT:7777
+    command: [nginx-debug, '-g', 'daemon off;']
+    restart: always
+    depends_on:
+      - app
+
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+    volumes:
+      - 'postgres_data:/var/lib/postgresql/data'
+      - './create-dbs.sql:/docker-entrypoint-initdb.d/create-dbs.sql'
+    ports:
+      - 6433:5432
+
+  app:
+    build:
+      context: .
+      dockerfile: docker/app.Dockerfile
+    command: poetry run python manage.py runserver_plus 0.0.0.0:8000 --reloader-interval 5 # --print-sql
+    ports:
+      - 8000:8000
+    volumes:
+      - .:/app
+      - /app/.venv
+    depends_on:
+      - db
+    stdin_open: true
+    tty: true
+  
+  rabbitmq:
+    image: rabbitmq
+  
+  redis:
+    image: redis:latest
+    ports:
+      - 6379:6379
+  
+  celeryworker:
+    build:
+      context: .
+      dockerfile: docker/app.Dockerfile
+    command: poetry run celery -A des_project worker -l info -Q dataservice-tasks -c 1
+    ports:
+      - 6900-7000:6900-7000
+    environment:
+      - CELERY_RDB_HOST=0.0.0.0
+    volumes:
+      - .:/app
+      - /app/.venv
+    depends_on:
+      - db
+      - rabbitmq
+      - redis
+
+
+volumes:
+  postgres_data:
+    driver: local

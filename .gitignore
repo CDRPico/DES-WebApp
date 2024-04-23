@@ -1,0 +1,55 @@
+.DS_Store
+.venv
+.venv2
+*.pyc
+*.swp
+*.iml
+tags
+scrap_notes.md
+
+# app
+scrap_notes.md
+node_modules/
+build/
+*.log
+coverage
+celery/
+*.log*
+staticfiles
+*.dump
+celerybeat-schedule
+logs/
+
+# files
+media/*
+
+# sass
+src/styles.css.map
+.sass-cache/*
+
+# Intellij
+.idea/
+
+# safety/privacy (get from other dev)
+*private_settings.py
+
+# local dev
+.docker
+.db
+.env.local*
+.env.e2e*
+venv
+
+# docker
+*/script/runserver
+# contains workarounds for Apple M1 devices
+docker-compose.override.yml
+
+
+playwright/.auth
+playwright-report/
+test-results/
+screenshot*.png
+
+# redis
+*dump.rdb
