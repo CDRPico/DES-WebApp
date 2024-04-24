@@ -64,6 +64,20 @@ services:
       - db
       - rabbitmq
       - redis
+  
+  frontend:
+    build:
+      context: ./simulation_frontend
+      dockerfile: docker/frontend.Dockerfile
+    ports:
+      - 3000:3000
+    volumes:
+      - ./simulation-frontend/public:/app/public
+      - ./simulation-frontend/src:/app/src
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    depends_on:
+      - app
 
 
 volumes:
